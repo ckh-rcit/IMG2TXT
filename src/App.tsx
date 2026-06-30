@@ -16,7 +16,7 @@ import type { PromptType } from '@/types'
 
 function App() {
   const { dark, toggle } = useTheme()
-  const { models, selectedModel, setSelectedModel, fetchModels } = useModels()
+  const { models, selectedModel, setSelectedModel, fetchModels, pullModel, pullStatus, pullProgress } = useModels()
   const { imageB64, imageSrc, dragOver, setDragOver, fileInputRef, handleDrop, handlePaste, readFile, clear: clearImage } = useImageUpload()
   const [status, setStatus] = useState<'idle' | 'sending' | 'generating' | 'done' | 'error'>('idle')
   const [statusMsg, setStatusMsg] = useState('Drop an image to get started')
@@ -86,6 +86,9 @@ function App() {
                 selectedModel={selectedModel}
                 setSelectedModel={setSelectedModel}
                 fetchModels={fetchModels}
+                pullModel={pullModel}
+                pullStatus={pullStatus}
+                pullProgress={pullProgress}
               />
               <PromptSelector
                 selectedPrompt={selectedPrompt}

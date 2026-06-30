@@ -1,4 +1,5 @@
 import { Sun, Moon } from 'lucide-react'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 interface HeaderProps {
   dark: boolean
@@ -12,13 +13,19 @@ export function Header({ dark, onToggle }: HeaderProps) {
         <span className="font-display text-sm font-semibold tracking-tight bg-gradient-to-r from-foreground to-neutral-500 bg-clip-text text-transparent">
           IMG2TXT
         </span>
-        <button
-          onClick={onToggle}
-          className="text-muted-foreground/40 hover:text-muted-foreground transition-colors"
-          title={`Switch to ${dark ? 'light' : 'dark'} mode`}
-        >
-          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={onToggle}
+              className="text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+            >
+              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Switch to {dark ? 'light' : 'dark'} mode
+          </TooltipContent>
+        </Tooltip>
       </div>
     </header>
   )

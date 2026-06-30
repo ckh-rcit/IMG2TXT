@@ -11,6 +11,7 @@ export type DetailLevel = 'simple' | 'detailed' | 'very-detailed' | 'extreme'
 
 export interface ModelOption {
   name: string
+  displayName: string
   isVision: boolean
   isCloud: boolean
 }
