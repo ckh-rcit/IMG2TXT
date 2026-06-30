@@ -64,6 +64,7 @@ function App() {
   const [status, setStatus] = useState<Status>('idle')
   const [statusMsg, setStatusMsg] = useState('Drop an image to get started')
   const [copied, setCopied] = useState(false)
+  const [tokenCount, setTokenCount] = useState(0)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const descEndRef = useRef<HTMLDivElement>(null)
@@ -153,6 +154,7 @@ function App() {
     const prompt = PROMPTS[selectedPrompt] || PROMPTS.default
     const model = selectedModel || 'llava'
     setDescription('')
+    setTokenCount(0)
     setStatusAll('sending', 'Sending to Ollama...')
 
     try {
@@ -191,7 +193,10 @@ function App() {
               full += json.message.content
               setDescription(full)
             }
-            if (json.done) setStatusAll('done', 'Description complete.')
+            if (json.done) {
+              setStatusAll('done', 'Description complete.')
+              if (json.eval_count) setTokenCount(json.eval_count)
+            }
           } catch { /* skip partial */ }
         }
       }
@@ -349,6 +354,7 @@ function App() {
             <div className="flex items-center justify-between min-h-6">
               <span className="text-[11px] text-muted-foreground/50 tabular-nums">
                 {description.length} {description.length === 1 ? 'character' : 'characters'}
+                {tokenCount > 0 && <> &middot; {tokenCount} tokens</>}
               </span>
               {description && (
                 <Button variant="ghost" size="sm" className="h-auto px-0 text-xs text-muted-foreground hover:text-foreground" onClick={copyDesc}>
