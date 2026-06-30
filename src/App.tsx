@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { ImageUpload } from '@/components/ImageUpload'
 import { ModelSelector } from '@/components/ModelSelector'
 import { ModeSelector } from '@/components/ModeSelector'
@@ -35,14 +35,19 @@ function App() {
 
   useEffect(() => { fetchModels() }, [fetchModels])
 
+  const initialSelectionDone = useRef(false)
+
   useEffect(() => {
-    if (selectedMode === 'imgocr') {
+    if (selectedMode === 'imgocr' && !initialSelectionDone.current) {
       const ocrModel = models.find(m => m.isOcr)
-      if (ocrModel && selectedModel !== ocrModel.name) {
+      if (ocrModel) {
         setSelectedModel(ocrModel.name)
+        initialSelectionDone.current = true
       }
+    } else if (selectedMode !== 'imgocr') {
+      initialSelectionDone.current = false
     }
-  }, [selectedMode, models, selectedModel, setSelectedModel])
+  }, [selectedMode, models])
 
   const clearAll = useCallback(() => {
     clearImage()
