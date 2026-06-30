@@ -1,6 +1,7 @@
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 interface DetailSelectorProps {
   selectedDetail: string
@@ -26,9 +27,16 @@ export function DetailSelector({ selectedDetail, setSelectedDetail, disabled }: 
           </SelectTrigger>
           <SelectContent>
             {DETAIL_OPTIONS.map(opt => (
-              <SelectItem key={opt.value} value={opt.value} title={opt.description}>
-                {opt.label}
-              </SelectItem>
+              <Tooltip key={opt.value}>
+                <TooltipTrigger asChild>
+                  <SelectItem value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="start">
+                  {opt.description}
+                </TooltipContent>
+              </Tooltip>
             ))}
           </SelectContent>
         </Select>
