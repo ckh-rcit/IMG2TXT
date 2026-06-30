@@ -8,11 +8,13 @@ export const DETAIL_LEVELS: { value: DetailLevel; label: string }[] = [
   { value: 'extreme', label: 'Extreme Detail' },
 ] as const
 
+const NO_EM_DASH = ' Do not use em dashes (—). Use commas, semicolons, or periods instead.'
+
 const BASE_PROMPTS: Record<PromptType, string> = {
-  default: 'Describe this image.',
+  default: 'Describe this image.' + NO_EM_DASH,
   ocr: 'Extract all text visible in this image. Output the raw text only — no markdown, no code blocks, no backticks, no formatting, no commentary, no labels. Just the text itself.',
-  flux1: `Analyze this image and produce a detailed text-to-image prompt for FLUX.1-dev. Use natural language structured around these elements: SUBJECT (who/what is the focus), LOCATION (setting/environment), STYLE (artistic direction), CAMERA SETTINGS (perspective, lens, shot type), LIGHTING (quality, source, direction), COLORS (dominant palette), EFFECTS (atmosphere, mood, visual treatments), and any ADDITIONAL ELEMENTS. Write as a fluid, descriptive sentence that could recreate this image faithfully. Include specific visual details, textures, spatial relationships, and composition notes.`,
-  flux2: `Analyze this image and produce a detailed text-to-image prompt for FLUX.2. Structure it as: Subject + Action + Style + Context. Place the most important elements first (priority order: main subject, key action, critical style, essential context, secondary details). For photorealism, specify camera model, lens, and film stock (e.g. "shot on Sony A7IV, 85mm f/1.4"). Use hex color codes for precise color matching where relevant (e.g. "color #C4725A"). Describe what IS present — no negative phrasing. Write a clear, natural language description that could recreate this image.`,
+  flux1: `Analyze this image and produce a detailed text-to-image prompt for FLUX.1-dev. Use natural language structured around these elements: SUBJECT (who/what is the focus), LOCATION (setting/environment), STYLE (artistic direction), CAMERA SETTINGS (perspective, lens, shot type), LIGHTING (quality, source, direction), COLORS (dominant palette), EFFECTS (atmosphere, mood, visual treatments), and any ADDITIONAL ELEMENTS. Write as a fluid, descriptive sentence that could recreate this image faithfully. Include specific visual details, textures, spatial relationships, and composition notes.` + NO_EM_DASH,
+  flux2: `Analyze this image and produce a detailed text-to-image prompt for FLUX.2. Structure it as: Subject + Action + Style + Context. Place the most important elements first (priority order: main subject, key action, critical style, essential context, secondary details). For photorealism, specify camera model, lens, and film stock (e.g. "shot on Sony A7IV, 85mm f/1.4"). Use hex color codes for precise color matching where relevant (e.g. "color #C4725A"). Describe what IS present — no negative phrasing. Write a clear, natural language description that could recreate this image.` + NO_EM_DASH,
 }
 
 const DETAIL_MODIFIERS: Record<DetailLevel, string> = {
