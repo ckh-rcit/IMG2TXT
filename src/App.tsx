@@ -9,7 +9,7 @@ import { ImageIcon, RotateCcw, FileText, Copy, Check, Trash2, Sun, Moon } from '
 
 const PROMPTS: Record<string, string> = {
   default: 'Describe this image in detail.',
-  ocr: 'Extract all text visible in this image. Return only the extracted text exactly as it appears, preserving line breaks and formatting. Do not add any description, commentary, or analysis.',
+  ocr: 'Extract all text visible in this image. Return ONLY the extracted text with no additional output, commentary, or formatting. Stop immediately after outputting the text.',
   flux1: `Analyze this image and produce a detailed text-to-image prompt for FLUX.1-dev. Use natural language structured around these elements: SUBJECT (who/what is the focus), LOCATION (setting/environment), STYLE (artistic direction), CAMERA SETTINGS (perspective, lens, shot type), LIGHTING (quality, source, direction), COLORS (dominant palette), EFFECTS (atmosphere, mood, visual treatments), and any ADDITIONAL ELEMENTS. Write as a fluid, descriptive sentence that could recreate this image faithfully. Include specific visual details, textures, spatial relationships, and composition notes.`,
   flux2: `Analyze this image and produce a detailed text-to-image prompt for FLUX.2. Structure it as: Subject + Action + Style + Context. Place the most important elements first (priority order: main subject, key action, critical style, essential context, secondary details). For photorealism, specify camera model, lens, and film stock (e.g. "shot on Sony A7IV, 85mm f/1.4"). Use hex color codes for precise color matching where relevant (e.g. "color #C4725A"). Describe what IS present — no negative phrasing. Write a clear, natural language description that could recreate this image.`,
 }
@@ -165,6 +165,7 @@ function App() {
           model,
           messages: [{ role: 'user', content: prompt, images: [imageB64] }],
           stream: true,
+          options: selectedPrompt === 'ocr' ? { num_predict: 512 } : undefined,
         }),
       })
       if (!res.ok) {
