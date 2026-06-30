@@ -233,7 +233,7 @@ function App() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="border-b border-border">
         <div className="flex items-center justify-between max-w-5xl mx-auto px-6 py-4">
-          <span className="font-display text-sm font-semibold tracking-tight bg-gradient-to-r from-foreground to-neutral-500 bg-clip-text text-transparent">
+          <span className="font-display text-sm font-semibold tracking-tight bg-linear-to-r from-foreground to-neutral-500 bg-clip-text text-transparent">
             IMG2TXT
           </span>
           <button
@@ -344,8 +344,8 @@ function App() {
 
           {/* Right */}
           <div className="space-y-2">
-            <ScrollArea className="h-[460px] rounded-xl border border-border bg-card">
-              <div className="p-6 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-full">
+            <ScrollArea className="h-115 rounded-xl border border-border bg-card">
+              <div className="p-6 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word min-h-full">
                 {description || <span className="text-muted-foreground/40">Description will appear here</span>}
                 <div ref={descEndRef} />
               </div>
