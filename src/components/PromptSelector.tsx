@@ -1,20 +1,26 @@
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import type { PromptType } from '@/types'
+import type { PromptType, Mode } from '@/types'
 
 interface PromptSelectorProps {
   selectedPrompt: PromptType
   setSelectedPrompt: (v: PromptType) => void
+  mode: Mode
 }
 
-export function PromptSelector({ selectedPrompt, setSelectedPrompt }: PromptSelectorProps) {
-  const options = [
+export function PromptSelector({ selectedPrompt, setSelectedPrompt, mode }: PromptSelectorProps) {
+  const allOptions = [
     { value: 'default', label: 'Default' },
     { value: 'ocr', label: 'OCR' },
     { value: 'flux1', label: 'FLUX.1-dev' },
     { value: 'flux2', label: 'FLUX.2-dev' },
-  ] as const satisfies { value: PromptType; label: string }[]
+  ] as const satisfies { value: PromptType | 'ocr'; label: string }[]
+
+  const options = allOptions.filter(opt => {
+    if (mode === 'imgocr') return opt.value === 'ocr'
+    return opt.value !== 'ocr'
+  })
 
   return (
     <div className="flex items-center gap-2">

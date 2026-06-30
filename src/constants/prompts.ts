@@ -1,5 +1,11 @@
+export type Mode = 'img2txt' | 'imgocr'
 export type PromptType = 'default' | 'ocr' | 'flux1' | 'flux2'
 export type DetailLevel = 'simple' | 'detailed' | 'very-detailed' | 'extreme'
+
+export const MODES = [
+  { value: 'img2txt', label: 'IMG2TXT' },
+  { value: 'imgocr', label: 'IMGOCR' },
+] as const
 
 export const DETAIL_LEVELS: { value: DetailLevel; label: string }[] = [
   { value: 'simple', label: 'Simple' },
@@ -8,9 +14,16 @@ export const DETAIL_LEVELS: { value: DetailLevel; label: string }[] = [
   { value: 'extreme', label: 'Extreme Detail' },
 ] as const
 
+export const IMG2TXT_PROMPTS: PromptType[] = ['default', 'flux1', 'flux2']
+export const IMGOCR_PROMPTS: PromptType[] = ['ocr']
+
+export function getPromptsForMode(mode: Mode): PromptType[] {
+  return mode === 'img2txt' ? IMG2TXT_PROMPTS : IMGOCR_PROMPTS
+}
+
 const NO_EM_DASH = ' Do not use em dashes (—). Use commas, semicolons, or periods instead.'
 
-const BASE_PROMPTS: Record<PromptType, string> = {
+const BASE_PROMPTS: Record<PromptType | 'ocr', string> = {
   default: 'Describe this image.' + NO_EM_DASH,
   ocr: 'Extract all text visible in this image. Output the raw text only — no markdown, no code blocks, no backticks, no formatting, no commentary, no labels. Just the text itself.',
   flux1: `Analyze this image and produce a detailed text-to-image prompt for FLUX.1-dev. Use natural language structured around these elements: SUBJECT (who/what is the focus), LOCATION (setting/environment), STYLE (artistic direction), CAMERA SETTINGS (perspective, lens, shot type), LIGHTING (quality, source, direction), COLORS (dominant palette), EFFECTS (atmosphere, mood, visual treatments), and any ADDITIONAL ELEMENTS. Write as a fluid, descriptive sentence that could recreate this image faithfully. Include specific visual details, textures, spatial relationships, and composition notes.` + NO_EM_DASH,
@@ -24,20 +37,20 @@ const DETAIL_MODIFIERS: Record<DetailLevel, string> = {
   extreme: ' Provide an extremely granular, exhaustive description. Break down every element systematically: subject identification with precise attributes, spatial relationships, lighting analysis (direction, quality, color temperature), color palette with specific tones, material textures, composition rules used, camera perspective implications, atmospheric conditions, and any text or symbols. Leave nothing unexamined.',
 }
 
-export function buildPrompt(type: PromptType, detail: string): string {
+export function buildPrompt(type: PromptType | 'ocr', detail: string): string {
   const base = BASE_PROMPTS[type]
   if (type === 'ocr') return base
   return base + DETAIL_MODIFIERS[detail as DetailLevel]
 }
 
-export const PROMPT_LABELS: Record<PromptType, string> = {
+export const PROMPT_LABELS: Record<PromptType | 'ocr', string> = {
   default: 'Default',
   ocr: 'OCR',
   flux1: 'FLUX.1-dev',
   flux2: 'FLUX.2-dev',
 }
 
-export const PROMPT_OPTIONS = [
+export const PROMPT_OPTIONS: { value: PromptType | 'ocr'; label: string }[] = [
   { value: 'default', label: PROMPT_LABELS.default },
   { value: 'ocr', label: PROMPT_LABELS.ocr },
   { value: 'flux1', label: PROMPT_LABELS.flux1 },

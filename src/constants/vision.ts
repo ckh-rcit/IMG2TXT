@@ -3,7 +3,7 @@ export const VISION_PREFIXES = [
   'llama3.2-vision', 'llama3.3-vision',
   'qwen2-vl', 'qwen2.5-vl', 'qwen3-vl', 'qwen3.5',
   'minicpm-v', 'pixtral', 'smolvlm', 'phi3-vision',
-  'cogvlm', 'deepseek-vl', 'internvl', 'xgen-mm', 'yi-vision',
+  'cogvlm', 'deepseek-vl', 'deepseek-ocr', 'internvl', 'xgen-mm', 'yi-vision',
   'llava-llama3', 'llava-phi3', 'tinyllava',
   'glm-ocr', 'glm4v', 'glm',
 ] as const
@@ -23,4 +23,10 @@ export function guessVision(model: { name: string; details?: { families?: string
 
 export function guessCloud(name: string): boolean {
   return name.toLowerCase().includes(':cloud')
+}
+
+export function guessOcr(model: { name: string; details?: { families?: string[] } }): boolean {
+  const n = model.name.toLowerCase()
+  // Check for OCR-specific model names
+  return n.includes('ocr') || n.includes('glm-ocr')
 }

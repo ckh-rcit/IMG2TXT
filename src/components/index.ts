@@ -1,6 +1,7 @@
 export { Header } from './Header'
 export { ImageUpload } from './ImageUpload'
 export { ModelSelector } from './ModelSelector'
+export { ModeSelector } from './ModeSelector'
 export { PromptSelector } from './PromptSelector'
 export { DetailSelector } from './DetailSelector'
 export { ActionButtons } from './ActionButtons'

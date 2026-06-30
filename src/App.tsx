@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ImageUpload } from '@/components/ImageUpload'
 import { ModelSelector } from '@/components/ModelSelector'
+import { ModeSelector } from '@/components/ModeSelector'
 import { PromptSelector } from '@/components/PromptSelector'
 import { DetailSelector } from '@/components/DetailSelector'
 import { ActionButtons } from '@/components/ActionButtons'
@@ -12,7 +13,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useModels } from '@/hooks/useModels'
 import { useImageUpload } from '@/hooks/useImageUpload'
 import { useDescription } from '@/hooks/useDescription'
-import type { PromptType } from '@/types'
+import type { PromptType, Mode } from '@/types'
 
 function App() {
   const { dark, toggle } = useTheme()
@@ -21,6 +22,7 @@ function App() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'generating' | 'done' | 'error'>('idle')
   const [statusMsg, setStatusMsg] = useState('Drop an image to get started')
   const [copied, setCopied] = useState(false)
+  const [selectedMode, setSelectedMode] = useState<Mode>('img2txt')
   const [selectedPrompt, setSelectedPrompt] = useState<PromptType>('default')
   const [selectedDetail, setSelectedDetail] = useState<string>('detailed')
 
@@ -32,6 +34,15 @@ function App() {
   const { description, setDescription, tokenCount, generate } = useDescription({ setStatus: setStatusAll })
 
   useEffect(() => { fetchModels() }, [fetchModels])
+
+  useEffect(() => {
+    if (selectedMode === 'imgocr') {
+      const ocrModel = models.find(m => m.isOcr)
+      if (ocrModel && selectedModel !== ocrModel.name) {
+        setSelectedModel(ocrModel.name)
+      }
+    }
+  }, [selectedMode, models, selectedModel, setSelectedModel])
 
   const clearAll = useCallback(() => {
     clearImage()
@@ -49,8 +60,9 @@ function App() {
 
   const handleDescribe = useCallback(() => {
     if (!imageB64 || !selectedModel) return
-    generate(imageB64, selectedPrompt, selectedDetail, selectedModel)
-  }, [imageB64, selectedModel, selectedPrompt, selectedDetail, generate])
+    const promptType = selectedMode === 'imgocr' ? 'ocr' : selectedPrompt
+    generate(imageB64, promptType, selectedDetail, selectedModel)
+  }, [imageB64, selectedModel, selectedMode, selectedPrompt, selectedDetail, generate])
 
   useEffect(() => {
     const handler = (e: ClipboardEvent) => handlePaste(e as unknown as React.ClipboardEvent)
@@ -81,6 +93,10 @@ function App() {
               readFile={readFile}
             />
             <div className="space-y-3">
+              <ModeSelector
+                selectedMode={selectedMode}
+                setSelectedMode={setSelectedMode}
+              />
               <ModelSelector
                 models={models}
                 selectedModel={selectedModel}
@@ -90,14 +106,19 @@ function App() {
                 pullStatus={pullStatus}
                 pullProgress={pullProgress}
               />
-              <PromptSelector
-                selectedPrompt={selectedPrompt}
-                setSelectedPrompt={setSelectedPrompt}
-              />
-              <DetailSelector
-                selectedDetail={selectedDetail}
-                setSelectedDetail={setSelectedDetail}
-              />
+              {selectedMode === 'img2txt' && (
+                <>
+                  <PromptSelector
+                    selectedPrompt={selectedPrompt}
+                    setSelectedPrompt={setSelectedPrompt}
+                    mode={selectedMode}
+                  />
+                  <DetailSelector
+                    selectedDetail={selectedDetail}
+                    setSelectedDetail={setSelectedDetail}
+                  />
+                </>
+              )}
               <ActionButtons
                 onDescribe={handleDescribe}
                 disabled={!imageB64 || status === 'sending' || status === 'generating'}

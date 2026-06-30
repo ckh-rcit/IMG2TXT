@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { RECOMMENDED_MODELS } from '@/hooks/useModels'
 
 interface ModelSelectorProps {
-  models: { name: string; displayName: string; isVision: boolean; isCloud: boolean }[]
+  models: { name: string; displayName: string; isVision: boolean; isCloud: boolean; isOcr: boolean }[]
   selectedModel: string
   setSelectedModel: (v: string) => void
   fetchModels: () => void
@@ -49,6 +49,7 @@ export function ModelSelector({
                 <span className="flex items-center gap-1.5">
                   {m.displayName}
                   {m.isVision && <Badge className="bg-orange-500/15 text-orange-500 text-[10px] px-1.5 py-0 font-normal border-0">vision</Badge>}
+                  {m.isOcr && <Badge className="bg-purple-500/15 text-purple-500 text-[10px] px-1.5 py-0 font-normal border-0">ocr</Badge>}
                   {m.isCloud && <Badge className="bg-blue-500/15 text-blue-500 text-[10px] px-1.5 py-0 font-normal border-0">cloud</Badge>}
                 </span>
               </SelectItem>

@@ -13,7 +13,7 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
 
   const generate = useCallback(async (
     imageB64: string,
-    promptType: PromptType,
+    promptType: PromptType | 'ocr',
     detailLevel: string,
     selectedModel: string
   ) => {

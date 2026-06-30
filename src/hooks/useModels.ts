@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import type { OllamaModel, ModelOption } from '@/types'
-import { guessVision, guessCloud } from '@/constants/vision'
+import { guessVision, guessCloud, guessOcr } from '@/constants/vision'
 
 // Curated recommended models for easy pulling
 export const RECOMMENDED_MODELS = [
@@ -36,6 +36,7 @@ export function useModels() {
         displayName: m.name.split('/').pop() || m.name,
         isVision: guessVision(m),
         isCloud: guessCloud(m.name),
+        isOcr: guessOcr(m),
       }))
       setModels(options)
       const visionCount = options.filter(m => m.isVision).length
