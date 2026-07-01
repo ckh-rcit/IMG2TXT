@@ -31,7 +31,7 @@ function App() {
     setStatusMsg(msg)
   }, [])
 
-  const { description, setDescription, tokenCount, generate } = useDescription({ setStatus: setStatusAll })
+  const { description, setDescription, tokenCount, cleanupApplied, generate } = useDescription({ setStatus: setStatusAll })
 
   useEffect(() => { fetchModels() }, [fetchModels])
 
@@ -144,6 +144,8 @@ function App() {
             description={description}
             tokenCount={tokenCount}
             copied={copied}
+            isFluxPrompt={selectedPrompt === 'flux1' || selectedPrompt === 'flux2'}
+            cleanupApplied={cleanupApplied}
             onCopy={copyDesc}
           />
         </div>

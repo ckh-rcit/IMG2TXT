@@ -10,6 +10,37 @@ interface UseDescriptionOptions {
 export function useDescription({ setStatus }: UseDescriptionOptions) {
   const [description, setDescription] = useState('')
   const [tokenCount, setTokenCount] = useState(0)
+  const [cleanupApplied, setCleanupApplied] = useState(false)
+
+  const requestSingleTurn = useCallback(async (model: string, imageB64: string, content: string, numPredict: number) => {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content, images: [imageB64] }],
+        stream: false,
+        options: { num_predict: numPredict },
+      }),
+    })
+    if (!res.ok) {
+      const err = await res.text()
+      throw new Error(`Ollama error (${res.status}): ${err}`)
+    }
+    const json = await res.json()
+    return (json?.message?.content ?? '').toString().trim()
+  }, [])
+
+  const buildSceneAnchor = useCallback(async (model: string, imageB64: string) => {
+    const anchorInstruction = [
+      'Describe exactly what is visible in this image in one short sentence.',
+      'Include only the main subject, key action, and setting.',
+      'No style words, no camera terms, no abstract reinterpretation, no markdown.',
+      'Do not use em dashes, e.g., i.e., or etc.',
+    ].join(' ')
+    const raw = await requestSingleTurn(model, imageB64, anchorInstruction, 96)
+    return cleanOutput(raw, 'flux1')
+  }, [requestSingleTurn])
 
   const generate = useCallback(async (
     imageB64: string,
@@ -18,16 +49,30 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
     selectedModel: string,
     imageCapable = true
   ) => {
-    const prompt = buildPrompt(promptType, detailLevel)
+    if (!imageCapable) {
+      setStatus('error', 'Selected model is likely non-vision. Choose a vision-capable model for image prompts.')
+      return
+    }
+
     const model = selectedModel || 'llava'
+    const isFluxMode = promptType === 'flux1' || promptType === 'flux2'
+
     setDescription('')
     setTokenCount(0)
-    setStatus(
-      'sending',
-      imageCapable
-        ? 'Sending image to Ollama...'
-        : 'Sending request... selected model may ignore images (likely non-vision).'
-    )
+    setCleanupApplied(false)
+
+    let sceneAnchor = ''
+    if (isFluxMode) {
+      setStatus('sending', 'Analyzing visible scene...')
+      try {
+        sceneAnchor = await buildSceneAnchor(model, imageB64)
+      } catch {
+        // Fall back to direct prompt generation if the prepass fails.
+      }
+    }
+
+    const prompt = buildPrompt(promptType, detailLevel, sceneAnchor)
+    setStatus('sending', 'Sending image to Ollama...')
 
     try {
       const res = await fetch('/api/chat', {
@@ -78,7 +123,9 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
       if (!full) {
         setStatus('error', 'Empty response from model.')
       } else {
-        setDescription(cleanOutput(full, promptType))
+        const cleaned = cleanOutput(full, promptType)
+        setCleanupApplied(cleaned !== full.trim())
+        setDescription(cleaned)
         setStatus('done', 'Description complete.')
       }
     } catch (err) {
@@ -86,7 +133,7 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
         ? 'Cannot reach Ollama at localhost:11434'
         : (err as Error).message)
     }
-  }, [setStatus])
+  }, [setStatus, buildSceneAnchor])
 
   const copy = useCallback(async () => {
     await navigator.clipboard.writeText(description)
@@ -95,7 +142,8 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
   const clear = useCallback(() => {
     setDescription('')
     setTokenCount(0)
+    setCleanupApplied(false)
   }, [])
 
-  return { description, setDescription, tokenCount, setTokenCount, generate, copy, clear }
+  return { description, setDescription, tokenCount, setTokenCount, cleanupApplied, generate, copy, clear }
 }

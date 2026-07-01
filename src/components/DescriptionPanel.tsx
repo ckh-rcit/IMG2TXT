@@ -7,10 +7,12 @@ interface DescriptionPanelProps {
   description: string
   tokenCount: number
   copied: boolean
+  isFluxPrompt: boolean
+  cleanupApplied: boolean
   onCopy: () => void
 }
 
-export function DescriptionPanel({ description, tokenCount, copied, onCopy }: DescriptionPanelProps) {
+export function DescriptionPanel({ description, tokenCount, copied, isFluxPrompt, cleanupApplied, onCopy }: DescriptionPanelProps) {
   const descEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export function DescriptionPanel({ description, tokenCount, copied, onCopy }: De
         <span className="text-[11px] text-muted-foreground/50 tabular-nums">
           {description.length} {description.length === 1 ? 'character' : 'characters'}
           {tokenCount > 0 && <>&nbsp;&middot;&nbsp;{tokenCount} tokens</>}
+          {isFluxPrompt && cleanupApplied && <>&nbsp;&middot;&nbsp;format cleaned</>}
         </span>
         {description && (
           <Button variant="ghost" size="sm" className="h-auto px-0 text-xs text-muted-foreground hover:text-foreground" onClick={onCopy}>

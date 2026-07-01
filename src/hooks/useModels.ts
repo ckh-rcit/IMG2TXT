@@ -1,21 +1,23 @@
 import { useState, useCallback } from 'react'
 import type { OllamaModel, ModelOption } from '@/types'
-import { guessVision, guessCloud, guessOcr } from '@/constants/vision'
+import { guessVision, guessCloud, guessOcr, PRIORITY } from '@/constants/vision'
 
 // Curated recommended models for easy pulling
 export const RECOMMENDED_MODELS = [
   'qwen3-vl:8b-instruct',
   'qwen3-vl:latest',
-  'qwen3.5:latest',
-  'qwen3.5:9b',
   'huihui_ai/qwen3-vl-abliterated:8b-instruct',
   'llava:latest',
   'glm-ocr:latest',
-  'gemma4:e2b',
-  'gemma4:e4b',
 ] as const
 
 export type PullStatus = 'idle' | 'pulling' | 'success' | 'error'
+
+const PREFERRED_DEFAULTS = [
+  'qwen3-vl:8b-instruct',
+  'qwen3-vl:latest',
+  'huihui_ai/qwen3-vl-abliterated:8b-instruct',
+] as const
 
 export function useModels() {
   const [models, setModels] = useState<ModelOption[]>([])
@@ -42,7 +44,13 @@ export function useModels() {
       // Keep user selection stable across refresh if the model still exists.
       if (selectedModel && options.some(m => m.name === selectedModel)) return
 
-      const found = (['llava', 'moondream', 'bakllava', 'gemma3', 'gemma4', 'llama3.2-vision', 'pixtral', 'qwen2-vl', 'qwen3-vl', 'qwen3.5', 'glm'] as const)
+      const preferred = PREFERRED_DEFAULTS.find(name => options.some(m => m.name === name))
+      if (preferred) {
+        setSelectedModel(preferred)
+        return
+      }
+
+      const found = PRIORITY
         .find(p => options.some(m => m.name.startsWith(p)))
       if (found) {
         const model = options.find(m => m.name.startsWith(found))
