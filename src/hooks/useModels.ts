@@ -20,7 +20,6 @@ export type PullStatus = 'idle' | 'pulling' | 'success' | 'error'
 export function useModels() {
   const [models, setModels] = useState<ModelOption[]>([])
   const [selectedModel, setSelectedModel] = useState('')
-  const [statusMsg, setStatusMsg] = useState('Loading models...')
   const [pullStatus, setPullStatus] = useState<PullStatus>('idle')
   const [pullProgress, setPullProgress] = useState('')
 
@@ -39,18 +38,22 @@ export function useModels() {
         isOcr: guessOcr(m),
       }))
       setModels(options)
-      const visionCount = options.filter(m => m.isVision).length
-      setStatusMsg(`${all.length} model(s), ${visionCount} vision-capable`)
+
+      // Keep user selection stable across refresh if the model still exists.
+      if (selectedModel && options.some(m => m.name === selectedModel)) return
+
       const found = (['llava', 'moondream', 'bakllava', 'gemma3', 'gemma4', 'llama3.2-vision', 'pixtral', 'qwen2-vl', 'qwen3-vl', 'qwen3.5', 'glm'] as const)
         .find(p => options.some(m => m.name.startsWith(p)))
       if (found) {
         const model = options.find(m => m.name.startsWith(found))
         if (model) setSelectedModel(model.name)
+      } else if (options[0]) {
+        setSelectedModel(options[0].name)
       }
     } catch {
-      setStatusMsg('Cannot reach Ollama at localhost:11434')
+      // Leave current list/selection untouched on network errors.
     }
-  }, [])
+  }, [selectedModel])
 
   const pullModel = useCallback(async (modelName: string) => {
     setPullStatus('pulling')
@@ -96,5 +99,5 @@ export function useModels() {
     }
   }, [fetchModels])
 
-  return { models, selectedModel, setSelectedModel, statusMsg, fetchModels, pullModel, pullStatus, pullProgress }
+  return { models, selectedModel, setSelectedModel, fetchModels, pullModel, pullStatus, pullProgress }
 }

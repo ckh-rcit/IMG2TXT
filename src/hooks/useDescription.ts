@@ -15,13 +15,19 @@ export function useDescription({ setStatus }: UseDescriptionOptions) {
     imageB64: string,
     promptType: PromptType | 'ocr',
     detailLevel: string,
-    selectedModel: string
+    selectedModel: string,
+    imageCapable = true
   ) => {
     const prompt = buildPrompt(promptType, detailLevel)
     const model = selectedModel || 'llava'
     setDescription('')
     setTokenCount(0)
-    setStatus('sending', 'Sending to Ollama...')
+    setStatus(
+      'sending',
+      imageCapable
+        ? 'Sending image to Ollama...'
+        : 'Sending request... selected model may ignore images (likely non-vision).'
+    )
 
     try {
       const res = await fetch('/api/chat', {

@@ -13,7 +13,7 @@ interface ModelSelectorProps {
   selectedModel: string
   setSelectedModel: (v: string) => void
   fetchModels: () => void
-  pullModel: (name: string) => void
+  pullModel: (name: string) => Promise<void>
   pullStatus: 'idle' | 'pulling' | 'success' | 'error'
   pullProgress: string
 }
@@ -57,11 +57,11 @@ export function ModelSelector({
           </SelectContent>
         </Select>
         <Tooltip>
-<TooltipTrigger asChild>
+          <TooltipTrigger asChild>
               <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={fetchModels}>
                 <RotateCcw className="h-3.5 w-3.5" />
               </Button>
-            </TooltipTrigger>
+          </TooltipTrigger>
           <TooltipContent side="bottom">Refresh model list</TooltipContent>
         </Tooltip>
         {missingRecommended.length > 0 && (

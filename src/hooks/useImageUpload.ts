@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 export function useImageUpload() {
   const [imageB64, setImageB64] = useState<string | null>(null)
@@ -10,9 +10,15 @@ export function useImageUpload() {
     if (!file.type.startsWith('image/')) return
     const reader = new FileReader()
     reader.onload = e => {
-      const b64 = (e.target?.result as string).split(',')[1]
+      const result = e.target?.result
+      if (typeof result !== 'string') return
+      const b64 = result.split(',')[1]
+      if (!b64) return
       setImageB64(b64)
-      setImageSrc(URL.createObjectURL(file))
+      setImageSrc(prev => {
+        if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev)
+        return URL.createObjectURL(file)
+      })
     }
     reader.readAsDataURL(file)
   }, [])
@@ -29,10 +35,17 @@ export function useImageUpload() {
   }, [readFile])
 
   const clear = useCallback(() => {
+    if (imageSrc?.startsWith('blob:')) URL.revokeObjectURL(imageSrc)
     setImageB64(null)
     setImageSrc(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }, [])
+  }, [imageSrc])
+
+  useEffect(() => {
+    return () => {
+      if (imageSrc?.startsWith('blob:')) URL.revokeObjectURL(imageSrc)
+    }
+  }, [imageSrc])
 
   return {
     imageB64,

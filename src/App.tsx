@@ -47,7 +47,7 @@ function App() {
     } else if (selectedMode !== 'imgocr') {
       initialSelectionDone.current = false
     }
-  }, [selectedMode, models])
+  }, [selectedMode, models, setSelectedModel])
 
   const clearAll = useCallback(() => {
     clearImage()
@@ -66,8 +66,10 @@ function App() {
   const handleDescribe = useCallback(() => {
     if (!imageB64 || !selectedModel) return
     const promptType = selectedMode === 'imgocr' ? 'ocr' : selectedPrompt
-    generate(imageB64, promptType, selectedDetail, selectedModel)
-  }, [imageB64, selectedModel, selectedMode, selectedPrompt, selectedDetail, generate])
+    const model = models.find(m => m.name === selectedModel)
+    const imageCapable = Boolean(model?.isVision || model?.isOcr)
+    generate(imageB64, promptType, selectedDetail, selectedModel, imageCapable)
+  }, [imageB64, selectedModel, selectedMode, selectedPrompt, selectedDetail, models, generate])
 
   useEffect(() => {
     const handler = (e: ClipboardEvent) => handlePaste(e as unknown as React.ClipboardEvent)
